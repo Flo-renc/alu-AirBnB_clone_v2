@@ -5,12 +5,12 @@ Your web server, using the function deploy.
 
 """
 
-from fabric.api import *
+from fabric.api import env, run, put, local
 from datetime import datetime
 import os
 
 
-env.hosts = ["<IP web-01>", "<IP web_02>"]
+env.hosts = ["54.234.22.100", "54.144.229.232"]
 
 
 def do_pack():
@@ -19,12 +19,13 @@ def do_pack():
         if not os.path.exists("versions"):
             local("mkdir -o versions")
         current_time = datetime.now().strftime("%Y%m%d%H%M%S")
-        archive_name = "versions/web_static_{}.tgz".format(current_time)
-        local("tar -cvzf {} web_static".format(archive_name))
-        return archive_name
-    except Exception as e:
-        print(f"Error while packing: {e}")
-        return None
+        archive_path = "versions/web_static_{}.tgz".format(current_time)
+        
+        result = local("tar -cvzf {} web_static".format(archive_path))
+        
+        if result.failed:
+            return None
+        return archive_path
 
 def do_deploy(archive_path):
     """ Distributes an archive to the web servers. """
@@ -32,21 +33,23 @@ def do_deploy(archive_path):
         return False
 
     try:
-        archive_file = archive_path_split("/")[-1]
-        archive_name = archive_file.split(".")[0]
+        put(archive, "/tmp/")
+        fileName = os.path.basename(archive_path)
+        name_no_ext = fileName.split('.')[0]
 
-        put(archive_path, "/tmp/{}".format(archive_file))
-        release_dir = "/data/web_static/releases/{}/".format(archive_name)
-        run("mkdir -p {}".format(realse_dir))
+        run("mkdir -p /data/web_static/releases/{}/".format(name_no_ext))
 
-        run("tar -xaf /tmp/{} -C {}".format(archive_file, release_dir))
-        run("rm /tmp/{}".format(archive_file))
-        
-        run("mv {0}web_static/* {0}".format(release_dir))
-        run("rm -rf {}/web_static".format(release_dir))
+        run("tar -xzf /tmp/{} -C /data/web_static/releases/{}/".format(fileName, name_no_ext))
 
-        run("rm -f /dtat/web_static/current")
-        run("ln -s {} /data/web_static/current".format(release_dir))
+        run("rm /tmp/{}".format(fileName))
+
+        run("mv /data/web_static/releases/{}/web_static/* /data/web_static/releases/{}/".format(name_no_ext, name_no_ext))
+
+        run("rm -rf /data/web_static/releases/{}/web_static".format(name_no_ext))
+
+        run("rm -rf /data/web_static/current")
+
+        run("ln -s /data/web_static/releases/{}/ /data/web_static/current".format(name_no_ext))
 
         print("New version deployed!")
         return True
@@ -61,5 +64,4 @@ def deploy():
     archive_path = do_pack()
     if archive_path is None:
         return False
-
     return do_deploy(archive_path)
