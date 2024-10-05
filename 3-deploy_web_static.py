@@ -14,7 +14,9 @@ env.hosts = ["54.234.22.100", "54.144.229.232"]
 
 
 def do_pack():
+
     """ Generates a .tgz archive from the contents of the web_static folder. """
+    
     try:
         if not os.path.exists("versions"):
             local("mkdir -o versions")
@@ -28,12 +30,13 @@ def do_pack():
         return archive_path
 
 def do_deploy(archive_path):
+
     """ Distributes an archive to the web servers. """
+
     if not os.path.exists(archive_path):
         return False
-
     try:
-        put(archive, "/tmp/")
+        put(archive_path, "/tmp/")
         fileName = os.path.basename(archive_path)
         name_no_ext = fileName.split('.')[0]
 
@@ -60,7 +63,9 @@ def do_deploy(archive_path):
 
 
 def deploy():
+
     """Creates and distributes an archive to the web servers. """
+
     archive_path = do_pack()
     if archive_path is None:
         return False
