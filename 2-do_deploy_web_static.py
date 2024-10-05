@@ -8,13 +8,13 @@ web servers using the function do_deploy
 from fabric.api import env, put, run
 import os
 
-env.hosts = ['6169-web-01', '6169-web-02']
+env.hosts = ['54.234.22.100', '54.234.22.100']
 
 
 def do_deploy(archive_path):
     """This function distributes an archive to the web servers web_01 and web_02 """
     
-    if not os.path.existx(archive_path):
+    if not os.path.exists(archive_path):
         return False
     try:
         archive_file = archive_path.split("/")[-1]
@@ -36,6 +36,6 @@ def do_deploy(archive_path):
         print("New version deployed!")
         return True
 
-    expeect Exception as e:
+    except Exception as e:
         print(f"Error occurred: {e}")
         return False
