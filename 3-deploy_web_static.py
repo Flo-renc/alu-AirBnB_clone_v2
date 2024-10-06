@@ -15,11 +15,17 @@ env.hosts = ["54.234.22.100", "54.144.229.232"]
 
 def do_pack():
 
-    """ Generates a .tgz archive from the contents of the web_static folder. """
-    
+    """  Generates a .tgz archive from the contents of the web_static folder.
+
+        This function creates a timestamped archive of the web_static folder
+            and saves it to the versions directory.
+
+                Returns:
+                        str: The path to the created archive, or None if the archive could not be creat
+    """
     try:
         if not os.path.exists("versions"):
-            local("mkdir -o versions")
+            local("mkdir -p versions")
         current_time = datetime.now().strftime("%Y%m%d%H%M%S")
         archive_path = "versions/web_static_{}.tgz".format(current_time)
         
@@ -30,7 +36,6 @@ def do_pack():
         return archive_path
 
 def do_deploy(archive_path):
-
     """ Distributes an archive to the web servers. """
 
     if not os.path.exists(archive_path):
