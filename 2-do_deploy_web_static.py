@@ -1,41 +1,28 @@
 #!/usr/bin/python3
-"""
-A Fabric script that distributes an archive to the 
-web servers using the function do_deploy
-
+""" Fabric script based on do_pack that distributes an archhive to websers
 """
 
-from fabric.api import env, put, run
-import os
-
-env.hosts = ['54.234.22.100', '54.234.22.100']
+from fabric.api import put, run, env
+from os.path import exists
+env.hosts = ['54.234.22.100','54.144.229.232']
 
 
 def do_deploy(archive_path):
-    """This function distributes an archive to the web servers web_01 and web_02 """
-    
-    if not os.path.exists(archive_path):
+    """ distributes an archive to the web servers """
+    if exists(archive_path) is False:
         return False
     try:
-        archive_file = archive_path.split("/")[-1]
-        archive_name = archive_dile_path.split(".")[0]
-
-        put(archive_path, "/tmp/{}".format(archive_file))
-
-        release_dir = "/data/web_static/release/{}/".format(archive_name)
-        run("sudo mkidr -p {}".format(release_dir))
-
-        run("sudo tar -xzf /tmp/{} -C {}".format(archive_file, release_dir))
-
-        run("sudo rm /tmp/{}".format(archive_file))
-        run("sudo mv {0}web_static/* {0}".format(release_dir))
-
-        run("sudo rm -rf {}/web_static".format(release_dir))
-        run("sudo ln -s {} /data/web_static/current".format(release_dir))
-
-        print("New version deployed!")
+        fileName = archive_path.split("/")[-1]
+        no_ext = fileName.split(".")[0]
+        path = "/data/web_static/releases/"
+        put(archive_path, '/tmp/')
+        run('mkdir -p {}{}/'.format(path, no_ext))
+        run('tar -xzf /tmp/{} -C {}{}/'.format(fileName, path, no_ext))
+        run('rm/tmp/{}'.format(fileName))
+        run('mv {0}{1}/web_static/* {0}{1}/'.format(path, no_ext))
+        run('rm -rf {}{}/web_static'.format(path, no_ext))
+        run('rm -rf /data/web_static/current')
+        run('ln -s {}{}/ /data/web_static/current'.format(path, no_ext))
         return True
-
-    except Exception as e:
-        print(f"Error occurred: {e}")
+    except:
         return False
