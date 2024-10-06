@@ -13,6 +13,8 @@ from os.path import exists, isdir
 env.hosts = ['54.234.22.100', '54.144.229.232']
 
 def do_pack():
+
+
     """generates a tgz archive"""
     try:
         date = datetime.now().strftime("%Y%m%d%H%M%S")
@@ -25,9 +27,9 @@ def do_pack():
         return None
 
 def do_deploy(archive_path):
+
+
     """ distributes archive to the web servers """
-
-
     if exists(archive_path) is False:
         return False
     try:

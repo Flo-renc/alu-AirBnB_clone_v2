@@ -26,7 +26,7 @@ def do_pack():
     if result.succeeded:
         file_size = os.path.getsize(archive_path)
         print("Archive created: {} | size: {} bytes".
-            format(archive_path, file_size))
+        format(archive_path, file_size))
         return archive_path
     else:
         print("Failed to create arcive")
